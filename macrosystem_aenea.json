@@ -1,0 +1,10 @@
+{
+    "host": "10.0.0.20",
+    "port": 8240,
+    "security_token": "LQMkD2K6zZVrZUoKckS53kpsVjKUWBna1WPM4d4P1I4=",
+    "platform": "proxy",
+    "use_multiple_actions": true,
+    "screen_resolution": [1920, 1080],
+    "project_root": "C:\\Users\\vlahm\\Documents\\Natlink",
+    "restrict_proxy_to_aenea_client": false
+}

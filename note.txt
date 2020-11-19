@@ -1,0 +1,5 @@
+i think macrosystem aenea.json only needs the line about project root,
+	which directs the program to the true project location
+possibly, macrosystem's server_state.json is not the relevant one, but rather client's
+i think _rstudio.py is the only useful grammar (as of 20201118).
+	pretty sure they need to be prefixed with _ to be loaded
