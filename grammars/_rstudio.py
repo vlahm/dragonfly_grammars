@@ -135,6 +135,55 @@ def format_snakeword(text):
 def format_eelword(text):
     return '_'.join(text)
 
+def format_camero(textnum):
+
+    #numwords = {}
+
+    units = [
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+        "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen", "twenty"
+    ]
+
+    numdict = {x: str(ind) for ind, x in enumerate(units)}
+    numdict['dose'] = '2'
+    units = units + ['dose']
+    print numdict
+    print units
+    #tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+
+    #scales = ["hundred", "thousand", "million", "billion", "trillion"]
+
+    #numwords["and"] = (1, 0)
+
+
+    #for idx, word in enumerate(units):
+    #    numwords[word] = (1, idx)
+    #for idx, word in enumerate(tens):
+    #    numwords[word] = (1, idx * 10)
+    #for idx, word in enumerate(scales):
+    #    numwords[word] = (10 ** (idx * 3 or 2), 0)
+
+    #current = result = 0
+    numout = ''
+    for word in textnum:
+        if word not in units:
+            numout = numout + '?'
+        else:
+            numout = numout + numdict[word]
+
+    #scale, increment = numwords[word]
+    #current = current * scale + increment
+    #if scale > 100:
+    #   result += current
+    #   current = 0
+
+    #return str(result + current)
+
+    print numout
+    return numout
+
+
 def format_acronym(text):
     return ''.join([word.upper() for word in text])
 
@@ -196,7 +245,7 @@ def format_sentence(text):
 
 
 class IdentifierInsertion(CompoundRule):
-    spec = ('[upper | natural] ( proper | camel | rel-path | abs-path | eelword | sentence | uppercase | lowercase | '
+    spec = ('[upper | natural] ( proper | camel | rel-path | abs-path | camero | eelword | sentence | uppercase | lowercase | '
             'scope-resolve | jumble | dotword | dashword | natword | snakeword | brooding-narrative | '
             'string-sequence | superstring-sequence | comma-sequence | acronym) [<dictation>]')
     extras = [Dictation(name='dictation')]
@@ -243,24 +292,37 @@ ruleLiteralIdentifierInsertion = RuleRef(
 # INSERTIONS
 # ****************************************************************************
 
+#TEXTY
 class KeyInsertion(MappingRule):
     mapping = {
         '<text>':               Text('%(text)s'), #catch-all for text
+        'marker <text>':           Key('escape, escape') + Text('m') + Text('%(text)s'),
+        'marco <text>':           Key('escape, escape') + Text('`') + Text('%(text)s'),
+        "pre char <text>":     Key("escape, escape") + Text('F') + Text("%(text)s"),
+        "follow char <text>":     Key("escape, escape") + Text('f') + Text("%(text)s"),
+        "plexus":     Text(","),
+        "nexus":     Text(";"),
+        'dell <count>': Key('escape, escape') + Text('%(count)d') + Key('d, d'),
+        'yank <count>': Key('escape, escape') + Text('%(count)d') + Key('y, y'),
         'ace [<count>]':        Key('space:%(count)d'),
         'tab [<count>]':        Key('tab:%(count)d'),
         'slap [<count>]':       Key('enter:%(count)d'),
         'chuck [<count>]':      Key('del:%(count)d'),
         'scratch [<count>]':    Key('backspace:%(count)d'),
         'nix [<count>]':        Key('x:%(count)d'),
-        'scroll up [<count>]':        Key('c-y:%(count)d'),
-        'scroll down [<count>]':        Key('c-e:%(count)d'),
+        'scroll up [<count>]':        Key('escape, escape') + Key('c-y:%(count)d'),
+        'scroll down [<count>]':        Key('escape, escape') + Key('c-e:%(count)d'),
+#'chunk up <count>':        Key('escape, escape') + Text('%(count)s') + Text('{'),
+#       'chunk down <count>':        Key('escape, escape') + Text('%(count)s') + Text('}'),
         'ack':                  Key('escape'),
         'bubble':               Key('lparen, rparen, left'),
+        'bubble wrap right [<count>]':               Key('lparen') + Key('c-right:%(count)d') + Key('rparen, left'),# Key('c-left:%(count)d'),
+        'bubble wrap left [<count>]':               Key('rparen') + Key('c-left:%(count)d') + Key('lparen, right'),# Key('c-left:%(count)d'),
         'box':                  Key('lbracket, rbracket, left'),
         'mandolin':             Key('lbrace, rbrace, left'),
         'substring':            Key('squote, squote, left'),
         'superstring':          Key('dquote/25:2, left'),
-        'sundew [<count>]':     Key('c-z/25:%(count)d'),
+        'oy [<count>]':     Key('c-z/25:%(count)d'),
         'sundry [<count>]':     Key('cs-z:%(count)d'),
         'sprint':               Key('ctrl:down'),
         'halt':                 Key('ctrl:up'),
@@ -276,6 +338,16 @@ class KeyInsertion(MappingRule):
         'deloris':              Key('c-d'),
         'tasman right [<count>]': Key('c-tab/25:%(count)d'),
         'tasman left [<count>]': Key('cs-tab/25:%(count)d'),
+        'word right [<count>]': Key('c-right/25:%(count)d'),
+        'word left [<count>]': Key('c-left/25:%(count)d'),
+        'color left [<count>]': Key('s-left/25:%(count)d'),
+        'color right [<count>]': Key('s-right/25:%(count)d'),
+        'color word left [<count>]': Key('cs-left/25:%(count)d'),
+        'color word right [<count>]': Key('cs-right/25:%(count)d'),
+        'color down [<count>]': Key('s-down/25:%(count)d'),
+        'color up [<count>]': Key('s-up/25:%(count)d'),
+        'color end': Key('as-right'),
+        'color home': Key('as-left'),
         'console pane':         Key('c-2'),
         'script pane':          Key('c-1'),
         'console clear':        Key('c-l'),
@@ -298,13 +370,24 @@ class KeyInsertion(MappingRule):
         'down [<count>]':       Key('down:%(count)d'),
         'left [<count>]':       Key('left:%(count)d'),
         'right [<count>]':      Key('right:%(count)d'),
-        'goose <count>':      Key('escape') + Text('%(count)d') + Text('G'),
+        'goose <count>':      Key('escape, escape') + Text('%(count)d') + Text('Gi'),
+        'column <count>':      Key('escape, escape') + Text('%(count)d') + Text('|'),
         'pipet':                Key('space, percent, rangle, percent, enter'),
+        'opt in':                Key('space, percent, i, n, percent, space'),
+        "move up [<count>]":     Key("a-up:%(count)d"),
+        "move down [<count>]":     Key("a-down:%(count)d"),
+        "dupe up [<count>]":     Key("sa-up:%(count)d"),
+        "dupe down [<count>]":     Key("sa-down:%(count)d"),
         "run on [<count>]":     Key("c-enter:%(count)d"),
-        "run stay":             Key("a-enter"),
+        "run stay":     Key("a-enter"),
+        "run back [<count>]":     Key("c-enter:%(count)d") + Key("up:%(count)d") + Key("up"),
+        "rerun":     Key("cs-p"),
+        "new script":     Key("cs-n"),
+        "finder":     Key("c-f"),
+#"run stay":             Key("a-enter"),
         "last line":            Key("c-end"),
         "first line":           Key("c-home"),
-        "commando":             Key("cs-c"),
+        "commando [<count>]":             Key('home, home') + Key("s-down:%(count)d") + Key("cs-c") + Key("right"),
         }
     extras = [
         Dictation("text"),
@@ -334,13 +417,16 @@ class ArithmeticInsertion(MappingRule):
         'compare less':     Text(' < '),
         'compare geck':     Text(' >= '),
         'compare lack':     Text(' <= '),
+        'negate':     Text('! '),
         'bit ore':          Text(' | '),
         'bit and':          Text(' & '),
         'bit ex or':        Text(' ^ '),
         'powder':        Text('^'),
+        'distributed as':        Text(' ~ '),
         'operate multiply':            Text(' * '),
         'operate divide':          Text(' / '),
         'operate plus':             Text(' + '),
+        'plus':             Text('+'),
         'operate minus':            Text(' - '),
         'plus equal':       Text(' += '),
         'minus equal':      Text(' -= '),
@@ -357,33 +443,37 @@ class ArithmeticInsertion(MappingRule):
        'num seven':            Text('7'),
        'num eight':            Text('8'),
        'num nine':            Text('9'),
-        'nine':             Text('9'),
-        'ten':              Text('10'),
-        'eleven':           Text('11'),
-        'twelve':           Text('12'),
-        'thirteen':         Text('13'),
-        'fourteen':         Text('14'),
-        'fifteen':          Text('15'),
-        'sixteen':          Text('16'),
-        'seventeen':        Text('17'),
-        'eighteen':         Text('18'),
-        'nineteen':         Text('19'),
-        'twenty':           Text('20'),
+       'ten':              Text('10'),
+       'eleven':           Text('11'),
+       'twelve':           Text('12'),
+       'thirteen':         Text('13'),
+       'fourteen':         Text('14'),
+       'fifteen':          Text('15'),
+       'sixteen':          Text('16'),
+       'seventeen':        Text('17'),
+       'eighteen':         Text('18'),
+       'nineteen':         Text('19'),
+       'twenty':           Text('20'),
         'backslash':        Text('\\'),
         'commerce':         Text(', '),
         'commadore':        Key('right, comma, space'),
+        'communal':        Key('right, comma, enter'),
         'onward':        Key('right, space'),
         'baubles':        Key('space, percent, percent, left'),
         'commune':          Key('comma, enter'),
         'colony':           Text(': '),
         'colonial':         Key('comma, enter'),
-        'vector':           Key('c, lparen, rparen, left'),
+        'advect':           Key('c, lparen, rparen, left'),
         'comment':          Text('# '),
         'quadcommendo':     Key('hash, hash, hash, hash, enter, enter'),
         'function start':   Key('space, equals, space, f, u, n, c, t, i, o, n, lparen, rparen, lbrace, left:2'),
         'function next':    Key('escape, escape, o, enter, enter, r, e, t, u, r, n, lparen, rparen, enter, rbrace, up, up, up, end'),
         'for loop start':   Key('f, o, r, lparen, i, space, i, n, space, rparen, lbrace, left:2'),
+        'for loop jay start':   Key('f, o, r, lparen, j, space, i, n, space, rparen, lbrace, left:2'),
+        'for loop kay start':   Key('f, o, r, lparen, k, space, i, n, space, rparen, lbrace, left:2'),
         'for loop next':    Key('escape, escape, o, enter, rbrace, up, end'),
+        'conditional start':   Key('i, f, lparen, rparen, lbrace, left:2'),
+        'conditional next':    Key('escape, escape, o, enter, rbrace, up, end'),
         'bang':             Text('! '),
         'banger':           Text('!!'),
        'chap alpha':            Text('A'),
@@ -413,8 +503,18 @@ class ArithmeticInsertion(MappingRule):
        'chap yankee':            Text('Y'),
        'chap zulu':            Text('Z'),
 
+#VOCAB
+       'Dwight':			Text('white'),
+       'vector':			Text('vector'),
+       'read':			Text('red'),
+       'end':			Text('end'),
        'phil':			Text('fill'),
        'Ro':			Text('row'),
+       'ennay':			Text('NA'),
+       'call':			Text('col'),
+       'sell':			Text('cell'),
+       'cell':			Text('cell'),
+       'paste':			Text('paste'),
        'daytime':			Text('datetime'),
 	'tibble':	Text('tibble'),
 	'right hand side':	Text('right'),
@@ -510,6 +610,7 @@ ruleInsertion = RuleRef(Insertion(), name='Insertion')
 # ****************************************************************************
 
 
+#VIMMY
 class PrimitiveMotion(MappingRule):
     mapping = {
         'upward': Text('k'),
@@ -531,6 +632,15 @@ class PrimitiveMotion(MappingRule):
         'anla': Key('escape, escape') + Text('}'),
         'sapla': Key('escape, escape') + Text('('),
         'sanla': Key('escape, escape') + Text(')'),
+
+        'yank end': Key('escape, escape') + Text('y$'),
+        'yank home': Key('escape, escape') + Text('y^'),
+        'yank homer': Key('escape, escape') + Text('y0'),
+        'dell end': Key('escape, escape') + Text('d$a'),
+        'dell home': Key('escape, escape') + Text('d^a'),
+        'dell homer': Key('escape, escape') + Text('d0a'),
+        'dell top': Key('escape, escape') + Text('dgga'),
+        'dell bottom': Key('escape, escape') + Text('dGa'),
 
         'karen': Text('^'),
         'keratin': Text('0'),
@@ -740,10 +850,10 @@ class PrimitiveCommand(MappingRule):
         "visual": Key('escape, escape, v'),
         "visual line": Key('escape, escape') + Key("s-v"),
         "visual block": Key('escape, escape') + Key("c-v"),
-        'dell': Key('escape, escape, d, d'),
-        'yank': Key('escape, escape, y, y'),
         'deli': Key('d'),
         'yoink': Key('y'),
+        'line join': Key('escape, escape, J'),
+        'realign': Key('up, escape, escape, J, s, enter'),
         "dello": Key('escape, escape, d, i, w'),
         "cello": Key('escape, escape, c, i, w'),
         'capsicum': Key('escape, escape, v, b, U, e, a'),
